@@ -32,10 +32,10 @@ public class TopkCommonWords {
     protected void setup(Context context) throws java.io.IOException, InterruptedException {
         try {
         Path[] localCacheFiles = DistributedCache.getLocalCacheFiles(context.getConfiguration());
-        URI stopWordFileURI = context.getCacheFiles()[0];
+        // URI stopWordFileURI = context.getCacheFiles()[0];
         if (localCacheFiles != null) {
             // BufferedReader br = new BufferedReader(new FileReader(stopWordFile));
-          BufferedReader br = new BufferedReader(localCacheFiles[0]);
+          BufferedReader br = new BufferedReader(new FileReader(new File(localCacheFiles[0].toUri())));
           String stopWord = null;
           while ((stopWord = br.readLine()) != null) {
             stopWordList.add(stopWord);
