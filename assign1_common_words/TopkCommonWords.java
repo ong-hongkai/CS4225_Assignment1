@@ -27,29 +27,29 @@ public class TopkCommonWords {
     private Text word = new Text();
     private ArrayList<String> stopWordList = new ArrayList<>();
 
-    // @Override
-    // protected void setup(Context context) throws java.io.IOException, InterruptedException {
-    //   try {
-    //     URI stopWordFileURI = context.getCacheFiles()[0];
-    //     File stopWordFile = new File(stopWordFileURI);
-    //     if (stopWordFile != null) {
-    //       BufferedReader br = new BufferedReader(new FileReader(stopWordFile));
-    //       String stopWord = null;
-    //       while ((stopWord = br.readLine()) != null) {
-    //         stopWordList.add(stopWord);
-		// 	    }
-    //     }
-    //   } catch (IOException e) {
-    //     System.err.println("Exception reading stop word file: " + e);
-    //   }
-    // }
+    @Override
+    protected void setup(Context context) throws java.io.IOException, InterruptedException {
+      try {
+        URI stopWordFileURI = context.getCacheFiles()[0];
+        File stopWordFile = new File(stopWordFileURI);
+        if (stopWordFile != null) {
+          BufferedReader br = new BufferedReader(new FileReader(stopWordFile));
+          String stopWord = null;
+          while ((stopWord = br.readLine()) != null) {
+            stopWordList.add(stopWord);
+			    }
+        }
+      } catch (IOException e) {
+        System.err.println("Exception reading stop word file: " + e);
+      }
+    }
 
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
       StringTokenizer itr = new StringTokenizer(value.toString(), "\n\t\r\f ");
       while (itr.hasMoreTokens()) {
         String curr = itr.nextToken();
-        // if (curr.length() > 4 && !stopWordList.contains(curr)) {
-          if (curr.length() > 4) {
+        if (curr.length() > 4 && !stopWordList.contains(curr)) {
+        //   if (curr.length() > 4) {
             word.set(curr);
             context.write(word, one);
         }
@@ -84,7 +84,7 @@ public class TopkCommonWords {
     job.setOutputValueClass(IntWritable.class);
     
     // Temporary test code
-    // job.addCacheFile(new Path(args[1]).toUri());
+    job.addCacheFile(new Path(args[1]).toUri());
     
     FileInputFormat.addInputPath(job, new Path(args[0]));
     FileOutputFormat.setOutputPath(job, new Path(args[2]));
