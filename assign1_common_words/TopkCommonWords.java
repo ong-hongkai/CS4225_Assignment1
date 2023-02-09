@@ -84,10 +84,10 @@ public class TopkCommonWords {
     job.setOutputValueClass(IntWritable.class);
     
     // Temporary test code
-    // job.addCacheFile(new Path(args[2]).toUri());
+    // job.addCacheFile(new Path(args[1]).toUri());
     
     FileInputFormat.addInputPath(job, new Path(args[0]));
-    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+    FileOutputFormat.setOutputPath(job, new Path(args[2]));
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }
