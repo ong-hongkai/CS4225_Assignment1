@@ -19,6 +19,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.filecache.DistributedCache;
 
 public class TopkCommonWords {
 
@@ -29,11 +30,12 @@ public class TopkCommonWords {
 
     @Override
     protected void setup(Context context) throws java.io.IOException, InterruptedException {
-      try {
+        try {
+        Path[] localCacheFiles = DistributedCache.getLocalCacheFiles(context.getConfiguration());
         URI stopWordFileURI = context.getCacheFiles()[0];
-        File stopWordFile = new File(stopWordFileURI);
-        if (stopWordFile != null) {
-          BufferedReader br = new BufferedReader(new FileReader(stopWordFile));
+        if (localCacheFiles != null) {
+            // BufferedReader br = new BufferedReader(new FileReader(stopWordFile));
+          BufferedReader br = new BufferedReader(localCacheFiles[0]);
           String stopWord = null;
           while ((stopWord = br.readLine()) != null) {
             stopWordList.add(stopWord);
