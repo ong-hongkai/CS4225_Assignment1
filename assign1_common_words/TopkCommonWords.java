@@ -50,7 +50,7 @@ public class TopkCommonWords {
         String curr = itr.nextToken();
         // if (curr.length() > 4 && !stopWordList.contains(curr)) {
           if (curr.length() > 4) {
-            word.set(itr.nextToken());
+            word.set(curr);
             context.write(word, one);
         }
       }
