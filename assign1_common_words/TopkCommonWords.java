@@ -1,6 +1,6 @@
-// Matric Number: 
-// Name: 
-// WordCount.java
+// Matric Number: A0217828W
+// Name: Ong Hong Kai
+// TopkCommonWords.java
 import java.io.IOException;
 import java.io.File;
 import java.util.StringTokenizer;
@@ -180,7 +180,7 @@ public class TopkCommonWords {
 
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
-    Job job = Job.getInstance(conf, "word count");
+    Job job = Job.getInstance(conf, "top k");
     job.setJarByClass(TopkCommonWords.class);
     job.setReducerClass(IntSumReducer.class);
     job.setOutputKeyClass(IntWritable.class);
