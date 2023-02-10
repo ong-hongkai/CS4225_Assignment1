@@ -97,12 +97,12 @@ public class TopkCommonWords {
         }
     }
 
-    class Pair implements Comparator<Pair> {
+    public static class Pair implements Comparator<Pair> {
         public final Integer first; // the first field of a pair
         public final String second; // the second field of a pair
 
         // Constructs a new pair with specified values
-        private Pair(Integer first, String second) {
+        public Pair(Integer first, String second) {
             this.first = first;
             this.second = second;
         }
