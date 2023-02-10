@@ -97,7 +97,7 @@ public class TopkCommonWords {
         }
     }
 
-    public static class Pair implements Comparator<Pair> {
+    public static class Pair implements Comparable<Pair>, Comparator<Pair> {
         public final Integer first; // the first field of a pair
         public final String second; // the second field of a pair
 
