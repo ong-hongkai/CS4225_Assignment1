@@ -117,7 +117,7 @@ public class TopkCommonWords {
 
         public int compareTo(Pair p) {
             if (this.getFirst().compareTo(p.getFirst()) > 0 || (this.getFirst().compareTo(p.getFirst()) == 0)
-                    && (this.getSecond().compareTo(p.getSecond()) > 0)) {
+                    && (this.getSecond().compareTo(p.getSecond()) < 0)) {
                 return 1;
             } else {
                 return -1;
