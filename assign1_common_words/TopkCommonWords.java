@@ -123,7 +123,6 @@ public class TopkCommonWords {
     job.setMapOutputValueClass(Text.class);
     // Place stopwords into distributed cache
     job.addCacheFile(new Path(args[2]).toUri());
-    
     // Add the two files as input
     MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, TokenizerMapper1.class);
     MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, TokenizerMapper2.class);
