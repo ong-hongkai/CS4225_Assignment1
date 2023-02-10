@@ -30,6 +30,38 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 public class TopkCommonWords {
 
+    public static class TokenizerMapper1 extends Mapper<Object, Text, Text, Text> {
+        private Text word = new Text();
+        private ArrayList<String> stopWordList = new ArrayList<>();
+
+        @Override
+        protected void setup(Context context) throws java.io.IOException, InterruptedException {
+            try {
+                Path[] localCacheFiles = DistributedCache.getLocalCacheFiles(context.getConfiguration());
+                if (localCacheFiles != null) {
+                    BufferedReader br = new BufferedReader(new FileReader(new File(localCacheFiles[0].toUri())));
+                    String stopWord = null;
+                    while ((stopWord = br.readLine()) != null) {
+                        stopWordList.add(stopWord);
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("Exception reading stop word file: " + e);
+            }
+        }
+
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            StringTokenizer itr = new StringTokenizer(value.toString(), "\n\t\r\f ");
+            while (itr.hasMoreTokens()) {
+                String curr = itr.nextToken();
+                if (curr.length() > 4 && !stopWordList.contains(curr)) {
+                    word.set(curr);
+                    context.write(word, new Text("file_1"));
+                }
+            }
+        }
+    }
+
     public static class TokenizerMapper extends Mapper<Object, Text, Text, Text> {
         private Text word = new Text();
         private ArrayList<String> stopWordList = new ArrayList<>();
@@ -52,13 +84,11 @@ public class TopkCommonWords {
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             StringTokenizer itr = new StringTokenizer(value.toString(), "\n\t\r\f ");
-            // Get filename 
-            String fileName = ((FileSplit) context.getInputSplit()).getPath().getName();
             while (itr.hasMoreTokens()) {
                 String curr = itr.nextToken();
                 if (curr.length() > 4 && !stopWordList.contains(curr)) {
                     word.set(curr);
-                    context.write(word, new Text(fileName));
+                    context.write(word, new Text("file_2"));
                 }
             }
         }
