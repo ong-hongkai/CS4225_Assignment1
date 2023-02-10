@@ -136,7 +136,7 @@ public class TopkCommonWords {
         Map.Entry<Integer, String> entry = nMap.pollLastEntry();
         while (entry != null) {
             context.write(new Text(entry.getValue()), new IntWritable(entry.getKey()));
-            Map.Entry<Integer, String> entry = nMap.pollLastEntry();
+            entry = nMap.pollLastEntry();
         }
     }
   }
