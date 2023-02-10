@@ -135,7 +135,7 @@ public class TopkCommonWords {
         }
     }
 
-    public static class IntSumReducer extends Reducer<Text, Text, IntWritable, Text> {
+    public static class IntSumReducer extends Reducer<Text, Text, Text, IntWritable> {
         private TreeSet<Pair> kList = new TreeSet<Pair>();
 
         public void reduce(Text key, Iterable<Text> values, Context context)
@@ -172,7 +172,7 @@ public class TopkCommonWords {
         public void cleanup(Context context) throws IOException, InterruptedException {
             Pair entry = kList.pollLast();
             while (entry != null) {
-                context.write(new IntWritable(entry.getFirst()), new Text(entry.getSecond()));
+                context.write(new Text(entry.getSecond()), new IntWritable(entry.getFirst()));
                 entry = kList.pollLast();
             }
         }
@@ -183,8 +183,8 @@ public class TopkCommonWords {
     Job job = Job.getInstance(conf, "word count");
     job.setJarByClass(TopkCommonWords.class);
     job.setReducerClass(IntSumReducer.class);
-    job.setOutputKeyClass(IntWritable.class);
-    job.setOutputValueClass(Text.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
     job.setMapOutputValueClass(Text.class);
     //Get k value
     job.getConfiguration().set("k", args[4]);
