@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.NavigableMap;
 import java.util.SortedMap;
+import java.util.TreeSet;
+import java.util.Comparator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -95,8 +97,46 @@ public class TopkCommonWords {
         }
     }
 
+    class Pair implements Comparator<Pair> {
+        public final Integer first; // the first field of a pair
+        public final String second; // the second field of a pair
+
+        // Constructs a new pair with specified values
+        private Pair(Integer first, String second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public Integer getFirst() {
+            return this.first;
+        }
+        
+        public String getSecond() {
+            return this.second;
+        }
+
+        public int compareTo(Pair p) {
+            if (this.getFirst().compareTo(p.getFirst()) > 0 || (this.getFirst().compareTo(p.getFirst()) == 0)
+                    && (this.getSecond().compareTo(p.getSecond()) > 0)) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+
+        @Override
+        public int compare(TopkCommonWords.Pair p1, TopkCommonWords.Pair p2) {
+            if (p1.getFirst().compareTo(p2.getFirst()) > 0 || (p1.getFirst().compareTo(p2.getFirst()) == 0)
+                    && (p1.getSecond().compareTo(p2.getSecond()) > 0)) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }
+
     public static class IntSumReducer extends Reducer<Text, Text, Text, IntWritable> {
-        private TreeMap<Integer, String> kList = new TreeMap<>();
+        private TreeSet<Pair> kList = new TreeSet<Pair>();
 
         public void reduce(Text key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
@@ -112,19 +152,15 @@ public class TopkCommonWords {
 
             if (counterMap.size() == 2) {
                 Integer count = Collections.min(counterMap.values());
-                // IntWritable result = new IntWritable(Collections.min(counterMap.values()));
-                // context.write(key, result);
                 if (kList.size() < 10) {
                     kList.put(count, key.toString());
                 } else {
-                    boolean isGreaterCount = count.compareTo(kList.firstKey()) > 0;
-                    boolean isSameCount = count.compareTo(kList.firstKey()) == 0;
-                    boolean isHigherLexi = kList.get(kList.firstKey()).compareTo(key.toString()) < 0;
-                    if (isGreaterCount || (isSameCount && isHigherLexi)) {
+                    Pair entry = new Pair(count, key.toString());
+                    if (entry.compareTo(kList.first()) > 0) {
                         //Remove lowest key
-                        kList.pollFirstEntry();
+                        kList.pollFirst();
                         //Add new key value mapping
-                        kList.put(count, key.toString());
+                        kList.put(key.toString(), count);
                     }
                 }
             }
@@ -132,11 +168,10 @@ public class TopkCommonWords {
 
         @Override
         public void cleanup(Context context) throws IOException, InterruptedException {
-            NavigableMap<Integer, String> nMap = kList.descendingMap();
-            Map.Entry<Integer, String> entry = nMap.pollLastEntry();
+            Pair entry = kList.pollLast();
             while (entry != null) {
-                context.write(new Text(entry.getValue()), new IntWritable(entry.getKey()));
-                entry = nMap.pollLastEntry();
+                context.write(new Text(entry.getSecond()), new IntWritable(entry.getFirst()));
+                entry = kList.pollLast();
             }
         }
     }
@@ -158,4 +193,10 @@ public class TopkCommonWords {
     FileOutputFormat.setOutputPath(job, new Path(args[3]));
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
+
+@Override
+public int compare(TopkCommonWords.Pair o1, TopkCommonWords.Pair o2) {
+    // TODO Auto-generated method stub
+    return 0;
+}
 }
