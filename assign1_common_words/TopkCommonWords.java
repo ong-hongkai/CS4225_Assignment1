@@ -153,7 +153,9 @@ public class TopkCommonWords {
             if (counterMap.size() == 2) {
                 Integer count = Collections.min(counterMap.values());
                 Pair entryPair = new Pair(count, key.toString());
-                if (kList.size() < 10) {
+                // Get k from configuration
+                int k = context.getConfiguration().get("k");
+                if (kList.size() < k) {
                     kList.add(entryPair);
                 } else {
                     if (entryPair.compareTo(kList.first()) > 0) {
@@ -184,6 +186,8 @@ public class TopkCommonWords {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
     job.setMapOutputValueClass(Text.class);
+    //Get k value
+    job.getConfiguration().set("k", args[4]);
     // Place stopwords into distributed cache
     job.addCacheFile(new Path(args[2]).toUri());
     // Add the two files as input
