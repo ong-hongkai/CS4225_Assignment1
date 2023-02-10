@@ -62,7 +62,7 @@ public class TopkCommonWords {
         }
     }
 
-    public static class TokenizerMapper extends Mapper<Object, Text, Text, Text> {
+    public static class TokenizerMapper2 extends Mapper<Object, Text, Text, Text> {
         private Text word = new Text();
         private ArrayList<String> stopWordList = new ArrayList<>();
 
@@ -120,12 +120,13 @@ public class TopkCommonWords {
     job.setReducerClass(IntSumReducer.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
+    job.setMapOutputValueClass(Text.class);
     // Place stopwords into distributed cache
     job.addCacheFile(new Path(args[2]).toUri());
     
     // Add the two files as input
-    MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, TokenizerMapper.class);
-    MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, TokenizerMapper.class);
+    MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, TokenizerMapper1.class);
+    MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, TokenizerMapper2.class);
 
     FileOutputFormat.setOutputPath(job, new Path(args[3]));
     System.exit(job.waitForCompletion(true) ? 0 : 1);
