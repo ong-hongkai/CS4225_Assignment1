@@ -154,7 +154,7 @@ public class TopkCommonWords {
                 Integer count = Collections.min(counterMap.values());
                 Pair entryPair = new Pair(count, key.toString());
                 // Get k from configuration
-                int k = context.getConfiguration().get("k");
+                int k = (int) context.getConfiguration().get("k");
                 if (kList.size() < k) {
                     kList.add(entryPair);
                 } else {
