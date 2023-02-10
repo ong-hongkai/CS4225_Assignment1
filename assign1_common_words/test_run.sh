@@ -18,7 +18,7 @@ hdfs dfs -mkdir ./temp/input/
 echo "Uploading input files"
 hdfs dfs -put ./data/* ./temp/input/
 echo "Submit job"
-hadoop jar cm.jar TopkCommonWords ./temp/input/task1-input1.txt ./temp/input/stopwords.txt ./temp/output/
+hadoop jar cm.jar TopkCommonWords ./temp/input/task1-input1.txt ./temp/input/task1-input2.txt ./temp/input/stopwords.txt ./temp/output/
 hdfs dfs -cat ./temp/output/part-r-00000
 hdfs dfs -get ./temp/output/part-r-00000 . && mv part-r-00000 ./output.txt
 
