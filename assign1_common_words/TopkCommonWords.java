@@ -4,6 +4,7 @@
 import java.io.IOException;
 import java.io.File;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.net.URI;
@@ -11,7 +12,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
-
+import java.util.NavigableMap;
+import java.util.SortedMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -94,8 +96,11 @@ public class TopkCommonWords {
         }
     }
 
-  public static class IntSumReducer extends Reducer<Text,Text,Text,IntWritable> {
-    public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+    public static class IntSumReducer extends Reducer<Text, Text, Text, IntWritable> {
+    private TreeMap<Integer, String> kList = new TreeMap<>();
+    
+    public void reduce(org.w3c.dom.Text key, Iterable<Text> values, Context context)
+            throws IOException, InterruptedException {
         Map<String, Integer> counterMap = new HashMap<String, Integer>();
         for (Text val : values) {
             String fileName = val.toString();
@@ -107,8 +112,30 @@ public class TopkCommonWords {
         }
 
         if (counterMap.size() == 2) {
-            IntWritable result = new IntWritable(Collections.min(counterMap.values())); 
-            context.write(key, result);
+            // IntWritable result = new IntWritable(Collections.min(counterMap.values())); 
+            // context.write(key, result);
+            Integer count = Collections.min(counterMap.values());
+            if (kList.size() < 10) {
+                kList.put(count, key.toString());
+            } else {
+                boolean isGreaterCount = count.compareTo(kList.firstKey()) > 0;
+                boolean isSameCount = count.compareTo(kList.firstKey()) == 0;
+                boolean isHigherLexi = kList.get(kList.firstKey()).compareTo(key.toString()) < 0;
+                if (isGreaterCount || (isSameCount && isHigherLexi)) {
+                    //Remove lowest key
+                    kList.pollFirstEntry();
+                    //Add new key value mapping
+                    kList.put(count, key.toString());
+                }
+            }
+        }
+    }
+    @Override
+    public void cleanup(Context context) throws IOException, InterruptedException {
+        NavigableMap<Integer, String> nMap = kList.descendingMap();
+        Map.Entry<Integer, String> entry = nMap.pollLastEntry();
+        while (entry != null) {
+            context.write(new Text(entry.getValue()), new IntWritable(entry.getKey()));
         }
     }
   }
