@@ -127,7 +127,7 @@ public class TopkCommonWords {
         @Override
         public int compare(TopkCommonWords.Pair p1, TopkCommonWords.Pair p2) {
             if (p1.getFirst().compareTo(p2.getFirst()) > 0 || (p1.getFirst().compareTo(p2.getFirst()) == 0)
-                    && (p1.getSecond().compareTo(p2.getSecond()) > 0)) {
+                    && (p1.getSecond().compareTo(p2.getSecond()) < 0)) {
                 return 1;
             } else {
                 return -1;
