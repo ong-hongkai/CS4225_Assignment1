@@ -27,7 +27,6 @@ import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.filecache.DistributedCache;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 
 public class TopkCommonWords {
@@ -113,6 +112,8 @@ public class TopkCommonWords {
 
         if (counterMap.size() == 2) {
             Integer count = Collections.min(counterMap.values());
+            IntWritable result = new IntWritable(Collections.min(counterMap.values())); 
+            context.write(key, result);
             if (kList.size() < 10) {
                 kList.put(count, key.toString());
             } else {
@@ -126,8 +127,6 @@ public class TopkCommonWords {
                     kList.put(count, key.toString());
                 }
             }
-            IntWritable result = new IntWritable(Collections.min(counterMap.values())); 
-            context.write(key, result);
         }
     }
     @Override
