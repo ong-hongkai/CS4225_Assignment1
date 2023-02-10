@@ -112,8 +112,6 @@ public class TopkCommonWords {
         }
 
         if (counterMap.size() == 2) {
-            // IntWritable result = new IntWritable(Collections.min(counterMap.values())); 
-            // context.write(key, result);
             Integer count = Collections.min(counterMap.values());
             if (kList.size() < 10) {
                 kList.put(count, key.toString());
@@ -128,6 +126,8 @@ public class TopkCommonWords {
                     kList.put(count, key.toString());
                 }
             }
+            IntWritable result = new IntWritable(Collections.min(counterMap.values())); 
+            context.write(key, result);
         }
     }
     @Override
