@@ -96,49 +96,50 @@ public class TopkCommonWords {
     }
 
     public static class IntSumReducer extends Reducer<Text, Text, Text, IntWritable> {
-    private TreeMap<Integer, String> kList = new TreeMap<>();
-    
-    public void reduce(org.w3c.dom.Text key, Iterable<Text> values, Context context)
-            throws IOException, InterruptedException {
-        Map<String, Integer> counterMap = new HashMap<String, Integer>();
-        for (Text val : values) {
-            String fileName = val.toString();
-            if (counterMap.containsKey(fileName)) {
-                counterMap.put(fileName, counterMap.get(fileName) + 1);
-            } else {
-                counterMap.put(fileName, 1);
-            }
-        }
+        private TreeMap<Integer, String> kList = new TreeMap<>();
 
-        if (counterMap.size() == 2) {
-            Integer count = Collections.min(counterMap.values());
-            IntWritable result = new IntWritable(Collections.min(counterMap.values())); 
-            context.write(key, result);
-            if (kList.size() < 10) {
-                kList.put(count, key.toString());
-            } else {
-                boolean isGreaterCount = count.compareTo(kList.firstKey()) > 0;
-                boolean isSameCount = count.compareTo(kList.firstKey()) == 0;
-                boolean isHigherLexi = kList.get(kList.firstKey()).compareTo(key.toString()) < 0;
-                if (isGreaterCount || (isSameCount && isHigherLexi)) {
-                    //Remove lowest key
-                    kList.pollFirstEntry();
-                    //Add new key value mapping
+        public void reduce(Text key, Iterable<Text> values, Context context)
+                throws IOException, InterruptedException {
+            Map<String, Integer> counterMap = new HashMap<String, Integer>();
+            for (Text val : values) {
+                String fileName = val.toString();
+                if (counterMap.containsKey(fileName)) {
+                    counterMap.put(fileName, counterMap.get(fileName) + 1);
+                } else {
+                    counterMap.put(fileName, 1);
+                }
+            }
+
+            if (counterMap.size() == 2) {
+                Integer count = Collections.min(counterMap.values());
+                // IntWritable result = new IntWritable(Collections.min(counterMap.values()));
+                // context.write(key, result);
+                if (kList.size() < 10) {
                     kList.put(count, key.toString());
+                } else {
+                    boolean isGreaterCount = count.compareTo(kList.firstKey()) > 0;
+                    boolean isSameCount = count.compareTo(kList.firstKey()) == 0;
+                    boolean isHigherLexi = kList.get(kList.firstKey()).compareTo(key.toString()) < 0;
+                    if (isGreaterCount || (isSameCount && isHigherLexi)) {
+                        //Remove lowest key
+                        kList.pollFirstEntry();
+                        //Add new key value mapping
+                        kList.put(count, key.toString());
+                    }
                 }
             }
         }
-    }
-    @Override
-    public void cleanup(Context context) throws IOException, InterruptedException {
-        NavigableMap<Integer, String> nMap = kList.descendingMap();
-        Map.Entry<Integer, String> entry = nMap.pollLastEntry();
-        while (entry != null) {
-            context.write(new Text(entry.getValue()), new IntWritable(entry.getKey()));
-            entry = nMap.pollLastEntry();
+
+        @Override
+        public void cleanup(Context context) throws IOException, InterruptedException {
+            NavigableMap<Integer, String> nMap = kList.descendingMap();
+            Map.Entry<Integer, String> entry = nMap.pollLastEntry();
+            while (entry != null) {
+                context.write(new Text(entry.getValue()), new IntWritable(entry.getKey()));
+                entry = nMap.pollLastEntry();
+            }
         }
     }
-  }
 
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
