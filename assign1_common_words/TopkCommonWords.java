@@ -152,15 +152,15 @@ public class TopkCommonWords {
 
             if (counterMap.size() == 2) {
                 Integer count = Collections.min(counterMap.values());
+                Pair entryPair = new Pair(count, key.toString());
                 if (kList.size() < 10) {
-                    kList.put(count, key.toString());
+                    kList.add(entryPair);
                 } else {
-                    Pair entry = new Pair(count, key.toString());
-                    if (entry.compareTo(kList.first()) > 0) {
+                    if (entryPair.compareTo(kList.first()) > 0) {
                         //Remove lowest key
                         kList.pollFirst();
                         //Add new key value mapping
-                        kList.put(key.toString(), count);
+                        kList.add(entryPair);
                     }
                 }
             }
@@ -193,10 +193,4 @@ public class TopkCommonWords {
     FileOutputFormat.setOutputPath(job, new Path(args[3]));
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
-
-@Override
-public int compare(TopkCommonWords.Pair o1, TopkCommonWords.Pair o2) {
-    // TODO Auto-generated method stub
-    return 0;
-}
 }
